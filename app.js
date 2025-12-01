@@ -39,6 +39,9 @@ function doLogin(){
       initQuietMode();
       loadTasks();
       startNotificationPolling();
+      // After login success:
+import("/push.js").then(m => m.initPushForUser(S.email));
+
     })
     .catch(err=>{ $('signinBtn').disabled=false; $('signinBtn').textContent='Sign in'; showErr('Network error'); console.error(err); });
 }
