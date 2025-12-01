@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Doer Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-theme="light">
+  <div class="app">
+    <!-- Notification drawer -->
+    <div id="notifPanel" class="notif-panel"></div>
+
+    <div class="content">
+      <!-- LOGIN -->
+      <div id="loginView" class="login-wrap">
+        <div class="card login-head">
+          <div class="logoBox">DD</div>
+          <div>
+            <div class="brand">Doer Dashboard</div>
+            <div class="muted">Sign in</div>
+          </div>
+        </div>
+        <div class="card">
+          <input class="input" id="loginId" placeholder="Login ID" />
+          <input class="input" id="loginPw" placeholder="Password" type="password" />
+          <button class="btn" id="signinBtn">Sign in</button>
+          <div id="loginErr" class="error muted"></div>
+        </div>
+      </div>
+
+      <!-- APP -->
+      <div id="appView" style="display:none">
+        <div class="header">
+          <div>
+            <div id="greetText" class="greet"></div>
+            <div id="headerDate" class="dateText muted"></div>
+          </div>
+          <div class="head-actions">
+            <div id="themeBtn" class="theme-btn" title="Toggle theme">🌙</div>
+            <div class="notif-btn">
+              <div id="notifBtn">🔔</div>
+              <div id="notifBadge" class="notifBadge" style="display:none">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">Today</div>
+          <div id="todayList" class="taskList"></div>
+        </div>
+
+        <div id="pendingCard" class="card" style="display:none">
+          <div class="section-title">Pending</div>
+          <div id="pendingList" class="taskList"></div>
+        </div>
+
+        <div id="doneCard" class="card" style="display:none">
+          <div class="section-title">Completed</div>
+          <div id="doneList" class="taskList"></div>
+        </div>
+
+        <div class="card">
+          <label class="muted" style="display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="quietToggle" />
+            Quiet Mode (no sound)
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottomNavWrap">
+      <div class="bottomNav">
+        <div class="navItem active" data-tab="today">🏠<div>Today</div></div>
+        <div class="navItem" data-tab="pending">⏳<div>Pending</div></div>
+        <div class="navItem" data-tab="done">✅<div>Done</div></div>
+        <div class="navItem" data-tab="profile">👤<div>Profile</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sound (Option C: long ding) -->
+  <audio id="notifSound" src="sound/notify.mp3" preload="auto"></audio>
+
+  <script src="app.js"></script>
+</body>
+</html>
