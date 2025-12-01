@@ -1,4 +1,4 @@
-// push.js — with GitHub Pages basePath auto-detect + robust logs
+// push.js — Firebase Web Push bootstrap (GitHub Pages–safe)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getMessaging, getToken, onMessage, isSupported } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging.js";
 
@@ -10,12 +10,14 @@ const firebaseConfig = {
   messagingSenderId: "311504357996",
   appId: "1:311504357996:web:1f092d859ff9f4e1e0a649"
 };
+
+// 🔑 VAPID public key
 const VAPID_KEY = "BJjlFWkDOla70jnjKCtKjQUCJmpP2f0lCNHmZYtPqjN42e2uJRv-p9EqVkbB5-2238L_XcxWWz-eAwAAZ2Usw7E";
 
-// ⚠️ UPDATE to your Cloud Function URL after deploy
+// ✅ Replace with your deployed Cloud Function endpoint (after deploy)
 const REGISTER_URL = "https://us-central1-doer-dashboard-notifications.cloudfunctions.net/registerToken";
 
-// Auto basePath for GitHub Pages project sites
+// GitHub Pages base path detect
 const isGh = location.hostname.endsWith("github.io");
 const basePath = isGh ? ("/" + location.pathname.split("/")[1]) : "";
 const swUrl = `${basePath}/firebase-messaging-sw.js`;
@@ -28,30 +30,30 @@ export async function initPushForUser(email) {
     if (!('serviceWorker' in navigator)) return { ok:false, reason:'no-sw' };
     if (!await isSupported()) return { ok:false, reason:'messaging-not-supported' };
 
-    console.log("🔧 basePath:", basePath, " swUrl:", swUrl, " scope:", swScope);
+    // register SW
     const reg = await navigator.serviceWorker.register(swUrl, { scope: swScope });
     await navigator.serviceWorker.ready;
 
+    // permission
     const perm = await Notification.requestPermission();
     if (perm !== 'granted') return { ok:false, reason:'permission-denied' };
 
+    // token
     const messaging = getMessaging(app);
     const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
     if (!token) return { ok:false, reason:'no-token' };
 
-    // Save token for debug
     localStorage.setItem("firebase-messaging-token", token);
     console.log("✅ FCM token:", token);
 
-    // Send to backend for storage
-    const r = await fetch(REGISTER_URL, {
+    // save token to backend
+    await fetch(REGISTER_URL, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ email, token, ua: navigator.userAgent })
     });
-    if (!r.ok) console.warn("registerToken HTTP error", r.status);
 
-    // Foreground messages: play sound + show badge dot
+    // foreground push → sound + badge
     onMessage(messaging, (payload) => {
       console.log("🔔 onMessage:", payload);
       if (!window.DD_QUIET) {
@@ -63,7 +65,7 @@ export async function initPushForUser(email) {
     });
 
     return { ok:true, token };
-  } catch (e) {
+  } catch(e){
     console.error('initPushForUser error', e);
     return { ok:false, error:String(e) };
   }
