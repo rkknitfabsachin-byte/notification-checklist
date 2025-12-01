@@ -1,0 +1,56 @@
+:root{
+  --bg:#f3f6fb;
+  --card:#ffffff;
+  --text:#0f1115;
+  --muted:#6b7280;
+  --accent:#0a84ff;
+  --notif:#ff3b30;
+  --shadow:0 12px 28px rgba(13,38,55,.12);
+}
+[data-theme="dark"]{
+  --bg:#0b0b0d;
+  --card:#151515;
+  --text:#f6f6f8;
+  --muted:#98a1a8;
+  --accent:#0a84ff;
+  --notif:#ff453a;
+  --shadow:0 12px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',Roboto,Arial}
+.app{max-width:480px;margin:auto;min-height:100vh;display:flex;flex-direction:column}
+.content{padding:18px;padding-bottom:120px}
+
+.card{background:var(--card);border-radius:16px;padding:14px;box-shadow:var(--shadow);margin-bottom:16px}
+.logoBox{width:60px;height:60px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#60d1ff);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.login-head{display:flex;gap:14px;align-items:center}
+.brand{font-weight:800;font-size:20px}
+.muted{color:var(--muted)}
+.input{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.07);background:transparent;margin-top:8px;color:var(--text)}
+.btn{width:100%;padding:12px;border-radius:12px;border:0;background:linear-gradient(90deg,var(--accent),#5ad0ff);color:#fff;font-weight:800;margin-top:12px;cursor:pointer}
+
+.header{display:flex;justify-content:space-between;align-items:flex-start}
+.greet{font-weight:800;font-size:20px}
+.dateText{font-size:13px}
+.head-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.theme-btn{background:var(--card);padding:8px 10px;border-radius:12px;box-shadow:var(--shadow);cursor:pointer}
+.notif-btn{position:relative;font-size:24px;cursor:pointer}
+.notifBadge{position:absolute;top:-6px;right:-6px;background:var(--notif);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px}
+
+.section-title{font-weight:800}
+.taskList{display:flex;flex-direction:column;gap:12px}
+.task{background:var(--card);border-radius:14px;padding:12px;box-shadow:0 8px 22px rgba(0,0,0,.06)}
+.taskTitle{font-weight:700}
+.meta{font-size:13px;color:var(--muted);margin-top:4px}
+.smallBtn{padding:8px 12px;background:var(--accent);color:#fff;border-radius:10px;border:0;font-weight:700;cursor:pointer}
+
+.bottomNavWrap{position:fixed;left:0;right:0;bottom:12px;display:flex;justify-content:center;pointer-events:none}
+.bottomNav{width:94%;max-width:480px;background:var(--card);border-radius:30px;padding:10px 12px;display:flex;justify-content:space-around;gap:6px;box-shadow:var(--shadow);pointer-events:auto}
+.navItem{display:flex;flex-direction:column;align-items:center;font-size:12px;color:var(--muted);cursor:pointer}
+.navItem.active{color:var(--accent);font-weight:700}
+
+.notif-panel{position:fixed;top:-100%;left:0;right:0;background:var(--card);max-width:480px;margin:auto;padding:20px;border-bottom-left-radius:22px;border-bottom-right-radius:22px;box-shadow:0 20px 30px rgba(0,0,0,.28);transition:0.35s ease;z-index:9999}
+.notifItem{background:var(--bg);padding:12px;border-radius:12px;margin-bottom:10px}
+.notifTitle{font-weight:700;font-size:14px}
+.notifBody{font-size:13px;color:var(--muted);margin-top:4px}
+.error{display:none;color:#ff3b30;margin-top:8px}
