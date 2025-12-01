@@ -1,4 +1,4 @@
-/* Firebase SW for background web push (must be at site root) */
+/* Firebase SW for background web push (must be at site root scope) */
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 
@@ -17,7 +17,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-/* Background message handler */
 messaging.onBackgroundMessage((payload) => {
   const title = payload.notification?.title || 'Task Update';
   const body  = payload.notification?.body  || 'You have a task update';
@@ -25,16 +24,15 @@ messaging.onBackgroundMessage((payload) => {
 
   const options = {
     body,
-    icon: '/icon-192.png',
-    badge: '/icon-192.png',
+    icon: `${self.registration.scope}icon-192.png`,
+    badge: `${self.registration.scope}icon-192.png`,
     data: payload.data || {}
   };
-
   self.registration.showNotification(title, options);
 
-  // App badge (supported on some platforms)
+  // optional app badge (where supported)
   if (navigator.setAppBadge && badge) {
-    navigator.setAppBadge(parseInt(badge, 10) || 1).catch(()=>{});
+    navigator.setAppBadge(parseInt(badge,10)||1).catch(()=>{});
   }
 });
 
@@ -43,9 +41,7 @@ self.addEventListener('notificationclick', (event) => {
   const url = self.registration.scope || '/';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-      for (const c of list) {
-        if (c.url.includes(url)) return c.focus();
-      }
+      for (const c of list) if (c.url.includes(url)) return c.focus();
       return clients.openWindow(url);
     })
   );
