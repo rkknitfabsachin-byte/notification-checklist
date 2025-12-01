@@ -1,35 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="/manifest.webmanifest" />
-<script type="module" src="/push.js"></script>
-<audio id="notifSound" src="sound/notify.mp3" preload="auto"></audio>
-
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Doer Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <!-- Manifest – relative path so it works at /notification-checklist/ -->
+  <link rel="manifest" href="./manifest.webmanifest"/>
+
+  <style>
+    :root{
+      --bg:#f3f6fb; --card:#fff; --text:#0f1115; --muted:#6b7280; --accent:#0a84ff; --notif:#ff3b30;
+      --shadow:0 12px 28px rgba(13,38,55,.12);
+    }
+    [data-theme="dark"]{
+      --bg:#0b0b0d; --card:#151515; --text:#f6f6f8; --muted:#98a1a8; --accent:#0a84ff; --notif:#ff453a;
+      --shadow:0 12px 28px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',Roboto,Arial}
+    .app{max-width:480px;margin:auto;min-height:100vh;display:flex;flex-direction:column}
+    .content{padding:18px;padding-bottom:120px}
+    .card{background:var(--card);border-radius:16px;padding:14px;box-shadow:var(--shadow);margin-bottom:16px}
+    .logoBox{width:60px;height:60px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#60d1ff);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+    .muted{color:var(--muted)}
+    .input{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.07);background:transparent;margin-top:8px;color:var(--text)}
+    .btn{width:100%;padding:12px;border-radius:12px;border:0;background:linear-gradient(90deg,var(--accent),#5ad0ff);color:#fff;font-weight:800;margin-top:12px;cursor:pointer}
+    .header{display:flex;justify-content:space-between;align-items:flex-start}
+    .greet{font-weight:800;font-size:20px}
+    .dateText{font-size:13px}
+    .head-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+    .theme-btn{background:var(--card);padding:8px 10px;border-radius:12px;box-shadow:var(--shadow);cursor:pointer}
+    .notif-btn{position:relative;font-size:24px;cursor:pointer}
+    .notifBadge{position:absolute;top:-6px;right:-6px;background:var(--notif);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px}
+    .section-title{font-weight:800}
+    .taskList{display:flex;flex-direction:column;gap:12px}
+    .task{background:var(--card);border-radius:14px;padding:12px;box-shadow:0 8px 22px rgba(0,0,0,.06)}
+    .taskTitle{font-weight:700}
+    .meta{font-size:13px;color:var(--muted);margin-top:4px}
+    .smallBtn{padding:8px 12px;background:var(--accent);color:#fff;border-radius:10px;border:0;font-weight:700;cursor:pointer}
+    .notif-panel{position:fixed;top:-100%;left:0;right:0;background:var(--card);max-width:480px;margin:auto;padding:20px;border-bottom-left-radius:22px;border-bottom-right-radius:22px;box-shadow:0 20px 30px rgba(0,0,0,.28);transition:0.35s ease;z-index:9999}
+    .notifItem{background:var(--bg);padding:12px;border-radius:12px;margin-bottom:10px}
+    .notifTitle{font-weight:700;font-size:14px}
+    .notifBody{font-size:13px;color:var(--muted);margin-top:4px}
+  </style>
 </head>
 <body data-theme="light">
   <div class="app">
-    <!-- Notification drawer -->
     <div id="notifPanel" class="notif-panel"></div>
 
     <div class="content">
       <!-- LOGIN -->
-      <div id="loginView" class="login-wrap">
-        <div class="card login-head">
+      <div id="loginView" class="card" style="display:block">
+        <div style="display:flex;gap:14px;align-items:center">
           <div class="logoBox">DD</div>
           <div>
-            <div class="brand">Doer Dashboard</div>
+            <div class="brand" style="font-weight:800;font-size:20px">Doer Dashboard</div>
             <div class="muted">Sign in</div>
           </div>
         </div>
-        <div class="card">
-          <input class="input" id="loginId" placeholder="Login ID" />
-          <input class="input" id="loginPw" placeholder="Password" type="password" />
+        <div style="margin-top:10px">
+          <input class="input" id="loginId" placeholder="Login ID"/>
+          <input class="input" id="loginPw" placeholder="Password" type="password"/>
           <button class="btn" id="signinBtn">Sign in</button>
-          <div id="loginErr" class="error muted"></div>
+          <div id="loginErr" class="muted" style="display:none;color:#ff3b30;margin-top:8px"></div>
         </div>
       </div>
 
@@ -51,43 +85,181 @@
 
         <div class="card">
           <div class="section-title">Today</div>
-          <div id="todayList" class="taskList"></div>
+          <div id="todayList" class="taskList" style="margin-top:12px"></div>
         </div>
 
         <div id="pendingCard" class="card" style="display:none">
           <div class="section-title">Pending</div>
-          <div id="pendingList" class="taskList"></div>
+          <div id="pendingList" class="taskList" style="margin-top:12px"></div>
         </div>
 
         <div id="doneCard" class="card" style="display:none">
           <div class="section-title">Completed</div>
-          <div id="doneList" class="taskList"></div>
+          <div id="doneList" class="taskList" style="margin-top:12px"></div>
         </div>
 
         <div class="card">
           <label class="muted" style="display:flex;align-items:center;gap:8px;">
-            <input type="checkbox" id="quietToggle" />
+            <input type="checkbox" id="quietToggle"/>
             Quiet Mode (no sound)
           </label>
         </div>
       </div>
     </div>
 
-    <!-- Bottom Nav -->
-    <div class="bottomNavWrap">
-      <div class="bottomNav">
-        <div class="navItem active" data-tab="today">🏠<div>Today</div></div>
-        <div class="navItem" data-tab="pending">⏳<div>Pending</div></div>
-        <div class="navItem" data-tab="done">✅<div>Done</div></div>
-        <div class="navItem" data-tab="profile">👤<div>Profile</div></div>
+    <!-- Bottom nav (static labels) -->
+    <div style="position:fixed;left:0;right:0;bottom:12px;display:flex;justify-content:center;pointer-events:none">
+      <div style="width:94%;max-width:480px;background:var(--card);border-radius:30px;padding:10px 12px;display:flex;justify-content:space-around;gap:6px;box-shadow:var(--shadow);pointer-events:auto">
+        <div class="muted">🏠 Today</div>
+        <div class="muted">⏳ Pending</div>
+        <div class="muted">✅ Done</div>
+        <div class="muted">👤 Profile</div>
       </div>
     </div>
   </div>
 
-  <!-- Sound (Option C: long ding) -->
-  <audio id="notifSound" src="sound/notify.mp3" preload="auto"></audio>
-  <!-- Add in your index.html, just before app.js -->
-<script type="module" src="/push.js"></script>
-  <script src="app.js"></script>
+  <!-- Sound -->
+  <audio id="notifSound" src="./sound/notify.mp3" preload="auto"></audio>
+
+  <!-- Push bootstrap (module) -->
+  <script type="module" src="./push.js"></script>
+
+  <!-- App (demo login + tasks rendering + integrate push init) -->
+  <script>
+    const STATE = { name:'', email:'', tasks:[], quiet:false };
+
+    const el = id => document.getElementById(id);
+    const esc = s => String(s||'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+
+    // Theme
+    (function(){
+      const saved = localStorage.getItem('theme') || 'light';
+      document.body.dataset.theme = saved;
+      el('themeBtn').textContent = saved==='dark' ? '☀️' : '🌙';
+    })();
+    el('themeBtn').onclick = ()=>{
+      const now = document.body.dataset.theme==='dark'?'light':'dark';
+      document.body.dataset.theme = now; localStorage.setItem('theme',now);
+      el('themeBtn').textContent = now==='dark'?'☀️':'🌙';
+    };
+
+    // Mock: replace with your Apps Script API
+    const API = {
+      login: async (loginId, password) => {
+        // TODO: replace with your Apps Script ?action=login
+        // For now success:
+        return { success:true, name: loginId || 'User', email: loginId + '@example.com' };
+      },
+      getTasks: async (email, name) => {
+        // TODO: replace with ?action=getTasks&email=
+        return [
+          { source:'Checklist', task:'Finish PI', taskId:'T1', date:new Date().toISOString(), status:'Pending' },
+          { source:'Delegation', task:'Call Vendor', taskId:'T2', date:new Date(Date.now()+86400000).toISOString(), status:'Pending' }
+        ];
+      },
+      markDone: async (src, id, email) => {
+        // TODO: call ?action=markDone
+        return { ok:true };
+      }
+    };
+
+    // Login
+    el('signinBtn').onclick = async ()=>{
+      const id = el('loginId').value.trim();
+      const pw = el('loginPw').value;
+      el('loginErr').style.display='none';
+      if(!id || !pw){ el('loginErr').textContent='Enter login details'; el('loginErr').style.display='block'; return; }
+
+      el('signinBtn').disabled=true; el('signinBtn').textContent='Signing...';
+      try{
+        const res = await API.login(id,pw);
+        el('signinBtn').disabled=false; el('signinBtn').textContent='Sign in';
+        if(!res || !res.success){ el('loginErr').textContent = (res && res.message) || 'Invalid credentials'; el('loginErr').style.display='block'; return; }
+        STATE.name = res.name || ''; STATE.email = res.email || '';
+        el('greetText').textContent = 'Hi, ' + STATE.name;
+        el('headerDate').textContent = new Date().toDateString();
+        el('loginView').style.display='none';
+        el('appView').style.display='block';
+
+        // init push (import push.js module already on page)
+        import('./push.js').then(m => m.initPushForUser(STATE.email));
+
+        loadTasks();
+        initQuietMode();
+      }catch(e){
+        el('signinBtn').disabled=false; el('signinBtn').textContent='Sign in';
+        el('loginErr').textContent='Network error'; el('loginErr').style.display='block';
+      }
+    };
+
+    async function loadTasks(){
+      const t = await API.getTasks(STATE.email, STATE.name);
+      STATE.tasks = t || [];
+      renderTasks();
+    }
+    function renderTasks(){
+      const todayKey = toKey(new Date());
+      const today=[], pending=[], done=[];
+      (STATE.tasks||[]).forEach(t=>{
+        const status = String(t.status||'').toLowerCase();
+        const d = t.date ? toKey(new Date(t.date)) : '';
+        if(status==='done') done.push(t);
+        else if(d===todayKey) today.push(t);
+        else pending.push(t);
+      });
+      injectList('todayList', today);
+      injectList('pendingList', pending);
+      injectList('doneList', done);
+    }
+    function injectList(id, arr){
+      const box = el(id); box.innerHTML='';
+      if(!arr || arr.length===0){ box.innerHTML='<div class="muted" style="padding:10px">No tasks</div>'; return; }
+      arr.forEach(t=>{
+        const div = document.createElement('div');
+        div.className='task';
+        div.innerHTML = `
+          <div class="taskTitle">${esc(t.task||'Untitled')}</div>
+          <div class="meta">${esc(t.source||'')} • ${t.date ? new Date(t.date).toLocaleDateString() : ''}</div>
+          <div style="margin-top:10px">${
+            String(t.status||'').toLowerCase()==='done'
+              ? '<span style="color:green;font-weight:700">Completed ✔</span>'
+              : `<button class="smallBtn" data-src="${t.source}" data-id="${t.taskId}">Mark Done</button>`
+          }</div>
+        `;
+        box.appendChild(div);
+        const btn = div.querySelector('button');
+        if(btn){
+          btn.onclick = async ()=>{
+            btn.disabled=true; btn.textContent='Updating…';
+            await API.markDone(btn.dataset.src, btn.dataset.id, STATE.email);
+            loadTasks();
+          };
+        }
+      });
+    }
+    function toKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+    // Quiet mode (optional)
+    function initQuietMode(){
+      const q = localStorage.getItem('dd_quiet') === '1';
+      STATE.quiet = q; window.DD_QUIET = q;
+      const chk = document.getElementById('quietToggle');
+      chk.checked = q;
+      chk.addEventListener('change', ()=>{
+        STATE.quiet = chk.checked; window.DD_QUIET = chk.checked;
+        localStorage.setItem('dd_quiet', chk.checked ? '1' : '0');
+      });
+    }
+
+    // Notif drawer
+    document.getElementById('notifBtn').onclick = ()=>{
+      const p = document.getElementById('notifPanel');
+      p.innerHTML = '<div class="notifItem"><div class="notifTitle">Notifications</div><div class="notifBody">New notifications will appear here.</div></div>';
+      document.getElementById('notifBadge').style.display='none';
+      p.style.top='0';
+      setTimeout(()=>document.addEventListener('click', closeOnce), 100);
+    };
+    function closeOnce(){ document.getElementById('notifPanel').style.top='-100%'; document.removeEventListener('click', closeOnce); }
+  </script>
 </body>
 </html>
